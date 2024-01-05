@@ -71,7 +71,7 @@ func TestCollectMap(t *testing.T) {
 		t.Parallel()
 
 		got := map[int]string{}
-		itermore.CollectMap(got, itermore.None2[int, string]())
+		itermore.CollectMap(got, itermore.None2[int, string])
 
 		if !maps.Equal(got, map[int]string{}) {
 			t.Errorf("got:  %v", got)
@@ -103,7 +103,7 @@ func TestCollectMapKeys(t *testing.T) {
 		t.Parallel()
 
 		got := map[int]struct{}{}
-		itermore.CollectKeys(got, struct{}{}, itermore.None[int]())
+		itermore.CollectKeys(got, struct{}{}, itermore.None[int])
 
 		if !maps.Equal(got, map[int]struct{}{}) {
 			t.Errorf("got:  %v", got)

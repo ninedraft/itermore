@@ -8,14 +8,10 @@ import (
 )
 
 // None creates an emptye sequence.
-func None[E any]() iter.Seq[E] {
-	return func(yield func(E) bool) {}
-}
+func None[E any](yield func(E) bool) {}
 
 // None2 creates an emptye sequence of pairs.
-func None2[A, B any]() iter.Seq2[A, B] {
-	return func(yield func(A, B) bool) {}
-}
+func None2[A, B any](yield func(A, B) bool) {}
 
 // One creates a sequence that yields a single value.
 func One[E any](value E) iter.Seq[E] {

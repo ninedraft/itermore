@@ -16,12 +16,12 @@ type pair struct {
 func TestNone(t *testing.T) {
 	t.Parallel()
 
-	assertBreak(t, itermore.None[int]())
+	assertBreak(t, itermore.None[int])
 
 	t.Run("iter", func(t *testing.T) {
 		t.Parallel()
 
-		for _ = range itermore.None[int]() {
+		for _ = range itermore.None[int] {
 			t.Fatal("no iterations are expected")
 		}
 	})
@@ -30,12 +30,12 @@ func TestNone(t *testing.T) {
 func TestNone2(t *testing.T) {
 	t.Parallel()
 
-	assertBreak2(t, itermore.None2[int, string]())
+	assertBreak2(t, itermore.None2[int, string])
 
 	t.Run("iter", func(t *testing.T) {
 		t.Parallel()
 
-		for _ = range itermore.None[int]() {
+		for _ = range itermore.None[int] {
 			t.Fatal("no iterations are expected")
 		}
 	})
@@ -475,7 +475,7 @@ func TestThen(t *testing.T) {
 			ok = true
 		}
 
-		seq := itermore.Then(itermore.None[int](), then)
+		seq := itermore.Then(itermore.None[int], then)
 
 		for _ = range seq {
 			t.Fatalf("must not iterate over empty seq")
@@ -513,7 +513,7 @@ func TestCompact(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		t.Parallel()
 
-		seq := itermore.Compact(itermore.None[int]())
+		seq := itermore.Compact(itermore.None[int])
 
 		for _ = range seq {
 			t.Fatalf("must not iterate over empty seq")
@@ -544,7 +544,7 @@ func TestMax(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		t.Parallel()
 
-		x, ok := itermore.Max(itermore.None[int]())
+		x, ok := itermore.Max(itermore.None[int])
 
 		if x != 0 {
 			t.Errorf("got:  %v", x)
@@ -580,7 +580,7 @@ func TestMin(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		t.Parallel()
 
-		x, ok := itermore.Min(itermore.None[int]())
+		x, ok := itermore.Min(itermore.None[int])
 
 		if x != 0 {
 			t.Errorf("got:  %v", x)
