@@ -2,11 +2,34 @@ package itermore_test
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"testing"
 
 	"github.com/ninedraft/itermore"
 )
+
+func ExampleChanCtx() {
+	ch := make(chan int, 3)
+	ch <- 10
+	ch <- 20
+	ch <- 30
+	close(ch)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// easy cancelation of range-over-chan loop
+	iter := itermore.ChanCtx(ctx, ch)
+
+	for x := range iter {
+		fmt.Println(x)
+	}
+
+	// Output: 10
+	// 20
+	// 30
+}
 
 func TestChan(t *testing.T) {
 	t.Parallel()

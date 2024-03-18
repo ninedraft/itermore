@@ -1,11 +1,24 @@
 package itermore_test
 
 import (
+	"fmt"
 	"slices"
 	"testing"
 
 	"github.com/ninedraft/itermore"
 )
+
+func ExampleZip() {
+	xx := itermore.Items(10, 20, 30)
+	yy := itermore.Items("a", "b", "c")
+
+	for x, y := range itermore.Zip(xx, yy) {
+		fmt.Println(x, y)
+	}
+	// Output: 10 a
+	// 20 b
+	// 30 c
+}
 
 func TestZip(t *testing.T) {
 	t.Parallel()

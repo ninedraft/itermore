@@ -1,12 +1,27 @@
 package itermore_test
 
 import (
+	"fmt"
 	"iter"
 	"slices"
 	"testing"
 
 	"github.com/ninedraft/itermore"
 )
+
+func ExampleChain() {
+	one := itermore.One(1)
+	xx := itermore.Items(10, 20, 30)
+
+	for x := range itermore.Chain(one, xx) {
+		fmt.Println(x)
+	}
+
+	// Output: 1
+	// 10
+	// 20
+	// 30
+}
 
 type pair struct {
 	a int
