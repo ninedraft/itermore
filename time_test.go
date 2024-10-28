@@ -2,12 +2,26 @@ package itermore_test
 
 import (
 	"context"
+	"fmt"
 	"runtime"
 	"testing"
 	"time"
 
 	"github.com/ninedraft/itermore"
 )
+
+func ExampleTestTick() {
+	i := 0
+	for range itermore.Tick(time.Millisecond) {
+		i++
+		fmt.Printf("%d ", i)
+		if i > 3 {
+			break
+		}
+	}
+
+	// Output: 1 2 3 4
+}
 
 func TestTick(t *testing.T) {
 	defer assertGoroutineLeak(t)()
@@ -34,6 +48,19 @@ func TestTickCtx(t *testing.T) {
 			cancel()
 		}
 	}
+}
+
+func ExampleTimer() {
+	i := 0
+	for _, reset := range itermore.Timer(time.Millisecond) {
+		i++
+		fmt.Printf("%d ", i)
+		if i < 3 {
+			reset(time.Millisecond)
+		}
+	}
+
+	// Output: 1 2 3
 }
 
 func TestTimer(t *testing.T) {
