@@ -1,6 +1,7 @@
 package itermore_test
 
 import (
+	"fmt"
 	"iter"
 	"slices"
 	"testing"
@@ -97,6 +98,48 @@ func TestCollect(t *testing.T) {
 
 		want := []int{}
 		got := itermore.Collect([]int{}, itermore.Slice(want))
+
+		if !slices.Equal(got, want) {
+			t.Errorf("got:  %v", got)
+			t.Errorf("want: %v", want)
+		}
+	})
+}
+
+func ExampleFlattenSlices() {
+	rows := itermore.Slice([][]int{
+		{1, 2},
+		{3, 4},
+	})
+
+	items := itermore.FlattenSlices(rows)
+
+	for x := range items {
+		fmt.Printf("%d ", x)
+	}
+
+	// Output: 1 2 3 4
+}
+
+func TestFlattenSlices(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		seq := itermore.FlattenSlices(itermore.Slice([][]int{}))
+		for range seq {
+			t.Error("must not emit any items")
+		}
+	})
+
+	t.Run("items", func(t *testing.T) {
+		want := []int{
+			1, 2, 3, 4,
+		}
+
+		seq := itermore.FlattenSlices(itermore.Slice([][]int{
+			{1, 2},
+			{3, 4},
+		}))
+
+		got := slices.Collect(seq)
 
 		if !slices.Equal(got, want) {
 			t.Errorf("got:  %v", got)

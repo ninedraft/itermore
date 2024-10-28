@@ -42,3 +42,18 @@ func Collect[S ~[]E, E any](dst S, seq iter.Seq[E]) S {
 	}
 	return dst
 }
+
+// FlattenSlices walks through provided sequence and emits each element from sequenced slice.
+//
+// Example:
+//
+//	[1, 2, 3] [4, 5, 6] -> 1, 2, 3, 4, 5, 6
+func FlattenSlices[E any](seq iter.Seq[[]E]) iter.Seq[E] {
+	return func(yield func(E) bool) {
+		for slice := range seq {
+			if !YieldFrom(yield, Slice(slice)) {
+				return
+			}
+		}
+	}
+}
