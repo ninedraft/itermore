@@ -36,6 +36,8 @@ func TickCtx(ctx context.Context, dt time.Duration) iter.Seq[time.Time] {
 // Returned seq emits timestamps and a reset function, which can be used to set next timer timeout.
 // If reset function is not called, then seq is stopped.
 // This function cleanup timer after seq is consumed or stopped.
+//
+// If you need to call reset outside of for-loop, it may be better to use a regular timer.
 func Timer(dt time.Duration) iter.Seq2[time.Time, func(time.Duration)] {
 	return func(yield func(time.Time, func(time.Duration)) bool) {
 		timer := time.NewTimer(dt)
