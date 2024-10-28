@@ -39,13 +39,12 @@ func TickCtx(ctx context.Context, dt time.Duration) iter.Seq[time.Time] {
 func Timer(dt time.Duration) iter.Seq2[time.Time, func(time.Duration)] {
 	return func(yield func(time.Time, func(time.Duration)) bool) {
 		timer := time.NewTimer(dt)
+		defer timer.Stop()
+
 		isResetted := &atomic.Bool{}
 		reset := func(dt time.Duration) {
 			isResetted.Store(true)
 			timer.Reset(dt)
-		}
-		if timer != nil {
-			defer timer.Stop()
 		}
 
 		for tick := range timer.C {
