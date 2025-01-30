@@ -22,6 +22,25 @@ func ExampleChain() {
 	// 20
 	// 30
 }
+func ExamplePairs() {
+	nums := itermore.Items(1, 2, 3, 4, 5, 6)
+	for a, b := range itermore.Pairs(nums) {
+		fmt.Printf("%d,%d\n", a, b)
+	}
+	// Output: 1,2
+	// 3,4
+	// 5,6
+}
+
+func ExamplePairsPadded() {
+	nums := itermore.Items(1, 2, 3, 4, 5)
+	for a, b := range itermore.PairsPadded(nums, 0) {
+		fmt.Printf("%d,%d\n", a, b)
+	}
+	// Output: 1,2
+	// 3,4
+	// 5,0
+}
 
 type pair struct {
 	a int
