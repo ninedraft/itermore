@@ -260,3 +260,53 @@ func Min[E cmp.Ordered](seq iter.Seq[E]) (E, bool) {
 
 	return x, ok
 }
+// PairsPadded creates a sequence that yields pairs of values from the given sequence.
+// If number of values in the sequence is odd, Pairs will pad the last pair with the given value.
+func PairsPadded[E any](seq iter.Seq[E], pad E) iter.Seq2[E, E] {
+	return func(yield func(E, E) bool) {
+		next, cancel := iter.Pull(seq)
+		defer cancel()
+
+		for {
+			a, ok := next()
+			if !ok {
+				return
+			}
+
+			b, ok := next()
+
+			if !ok {
+				b = pad
+			}
+
+			if !yield(a, b) {
+				return
+			}
+		}
+	}
+}
+
+// Pairs creates a sequence that yields pairs of values from the given sequence.
+// If number of values in the sequence is odd, Pairs will skip the last value.
+func Pairs[E any](seq iter.Seq[E]) iter.Seq2[E, E] {
+	return func(yield func(E, E) bool) {
+		next, cancel := iter.Pull(seq)
+		defer cancel()
+
+		for {
+			a, ok := next()
+			if !ok {
+				return
+			}
+
+			b, ok := next()
+			if !ok {
+				return
+			}
+
+			if !yield(a, b) {
+				return
+			}
+		}
+	}
+}

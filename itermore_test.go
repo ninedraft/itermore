@@ -608,6 +608,102 @@ func TestMin(t *testing.T) {
 	})
 }
 
+func TestPairsPadded(t *testing.T) {
+	t.Parallel()
+
+	t.Run("odd", func(t *testing.T) {
+		items := itermore.Items(1, 2, 3, 4, 5, 6)
+
+		var got [][2]int
+		for a, b := range itermore.PairsPadded(items, 0) {
+			got = append(got, [2]int{a, b})
+		}
+
+		want := [][2]int{
+			{1, 2}, {3, 4}, {5, 6},
+		}
+
+		if !slices.Equal(got, want) {
+			t.Errorf("got:  %v", got)
+			t.Errorf("want: %v", want)
+		}
+	})
+
+	t.Run("even", func(t *testing.T) {
+		items := itermore.Items(1, 2, 3, 4, 5, 6, 7)
+
+		var got [][2]int
+		for a, b := range itermore.PairsPadded(items, 0) {
+			got = append(got, [2]int{a, b})
+		}
+
+		want := [][2]int{
+			{1, 2}, {3, 4}, {5, 6}, {7, 0},
+		}
+
+		if !slices.Equal(got, want) {
+			t.Errorf("got:  %v", got)
+			t.Errorf("want: %v", want)
+		}
+	})
+
+	t.Run("empty", func(t *testing.T) {
+		items := itermore.None[int]
+
+		for _ = range itermore.PairsPadded(items, 0) {
+			t.Fatalf("must not iterate over empty seq")
+		}
+	})
+}
+
+func TestPairs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("even", func(t *testing.T) {
+		items := itermore.Items(1, 2, 3, 4, 5, 6)
+
+		var got [][2]int
+		for a, b := range itermore.Pairs(items) {
+			got = append(got, [2]int{a, b})
+		}
+
+		want := [][2]int{
+			{1, 2}, {3, 4}, {5, 6},
+		}
+
+		if !slices.Equal(got, want) {
+			t.Errorf("got:  %v", got)
+			t.Errorf("want: %v", want)
+		}
+	})
+
+	t.Run("odd", func(t *testing.T) {
+		items := itermore.Items(1, 2, 3, 4, 5)
+
+		var got [][2]int
+		for a, b := range itermore.Pairs(items) {
+			got = append(got, [2]int{a, b})
+		}
+
+		want := [][2]int{
+			{1, 2}, {3, 4},
+		}
+
+		if !slices.Equal(got, want) {
+			t.Errorf("got:  %v", got)
+			t.Errorf("want: %v", want)
+		}
+	})
+
+	t.Run("empty", func(t *testing.T) {
+		items := itermore.None[int]
+
+		for _ = range itermore.Pairs(items) {
+			t.Fatalf("must not iterate over empty seq")
+		}
+	})
+}
+
 func assertBreak[E any](t *testing.T, seq iter.Seq[E]) {
 	t.Helper()
 
