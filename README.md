@@ -13,11 +13,7 @@ Available utils include for now:
 - iterator destructors: `Collect`, `CollectJoin`, `CollectMap`, etc.
 - iterator constructors: `Items`, `For`, `ChanCtx`, etc.
 
-To use this package you need go 1.22 or later and you need to enable the `rangefunc` experiment until it is enabled by default.
-
-```
-export GOEXPERIMENT=rangefunc
-```
+To use this package you need go 1.24.22 or later.
 
 ## Examples
 
