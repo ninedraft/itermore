@@ -1,6 +1,9 @@
 package itermore
 
-import "iter"
+import (
+	"iter"
+	"slices"
+)
 
 // Slice creates a sequence that yields values from the given slice.
 // If slice is nil or empty, the sequence will be empty.
@@ -37,10 +40,7 @@ func Loop[E any](items []E) iter.Seq[E] {
 // If dst slice is nil, Collect will create a new slice.
 // It can return a new slice or the same slice that was passed as dst following the same rules as append function.
 func Collect[S ~[]E, E any](dst S, seq iter.Seq[E]) S {
-	for value := range seq {
-		dst = append(dst, value)
-	}
-	return dst
+	return slices.AppendSeq(dst, seq)
 }
 
 // FlattenSlices walks through provided sequence and emits each element from sequenced slice.
