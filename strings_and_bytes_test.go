@@ -14,7 +14,7 @@ func ExampleCollectJoin() {
 
 	str := &strings.Builder{}
 
-	itermore.CollectJoin(str, iter, ", ")
+	_, _ = itermore.CollectJoin(str, iter, ", ")
 
 	fmt.Println(str.String())
 
