@@ -22,6 +22,108 @@ func ExampleChain() {
 	// 20
 	// 30
 }
+
+func ExampleNone() {
+	for range itermore.None[int] {
+		fmt.Println("this will never be printed")
+	}
+	fmt.Println("empty sequence")
+	// Output: empty sequence
+}
+
+func ExampleOne() {
+	for x := range itermore.One(42) {
+		fmt.Println(x)
+	}
+	// Output: 42
+}
+
+func ExampleOne2() {
+	for k, v := range itermore.One2("key", "value") {
+		fmt.Printf("%s: %s\n", k, v)
+	}
+	// Output: key: value
+}
+
+func ExampleEnumerate() {
+	words := itermore.Items("apple", "banana", "cherry")
+	for i, word := range itermore.Enumerate(words) {
+		fmt.Printf("%d: %s\n", i, word)
+	}
+	// Output: 0: apple
+	// 1: banana
+	// 2: cherry
+}
+
+func ExampleSkipN() {
+	nums := itermore.Items(1, 2, 3, 4, 5)
+	for x := range itermore.SkipN(2, nums) {
+		fmt.Println(x)
+	}
+	// Output: 3
+	// 4
+	// 5
+}
+
+func ExampleTakeN() {
+	nums := itermore.Items(1, 2, 3, 4, 5)
+	for x := range itermore.TakeN(3, nums) {
+		fmt.Println(x)
+	}
+	// Output: 1
+	// 2
+	// 3
+}
+
+func ExampleFor() {
+	for x := range itermore.For(1, 4, 1) {
+		fmt.Println(x)
+	}
+	// Output: 1
+	// 2
+	// 3
+}
+
+func ExampleThen() {
+	cleanup := func() {
+		fmt.Println("cleanup called")
+	}
+	nums := itermore.Items(1, 2)
+	for x := range itermore.Then(nums, cleanup) {
+		fmt.Println(x)
+	}
+	// Output: 1
+	// 2
+	// cleanup called
+}
+
+func ExampleCompact() {
+	nums := itermore.Items(1, 1, 2, 2, 2, 3, 3, 4)
+	for x := range itermore.Compact(nums) {
+		fmt.Println(x)
+	}
+	// Output: 1
+	// 2
+	// 3
+	// 4
+}
+
+func ExampleMin() {
+	nums := itermore.Items(3, 1, 4, 1, 5)
+	if min, ok := itermore.Min(nums); ok {
+		fmt.Println(min)
+	}
+	// Output: 1
+}
+
+func ExampleMax() {
+	nums := itermore.Items(3, 1, 4, 1, 5)
+	if max, ok := itermore.Max(nums); ok {
+		fmt.Println(max)
+	}
+	// Output: 5
+}
+
 func ExamplePairs() {
 	nums := itermore.Items(1, 2, 3, 4, 5, 6)
 	for a, b := range itermore.Pairs(nums) {
