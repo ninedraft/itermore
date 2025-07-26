@@ -76,6 +76,22 @@ func TestLoop(t *testing.T) {
 			t.Errorf("want: %v", want)
 		}
 	})
+
+	t.Run("nil", func(t *testing.T) {
+		t.Parallel()
+
+		for value := range itermore.Loop[int](nil) {
+			t.Fatalf("must not iterate over nil seq, got: %v", value)
+		}
+	})
+
+	t.Run("empty", func(t *testing.T) {
+		t.Parallel()
+
+		for value := range itermore.Loop([]int{}) {
+			t.Fatalf("must not iterate over empty seq, got: %v", value)
+		}
+	})
 }
 
 func TestCollect(t *testing.T) {

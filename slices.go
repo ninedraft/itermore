@@ -27,6 +27,10 @@ func Items[E any](items ...E) iter.Seq[E] {
 // Loop forever yields values from the given slice in the order they appear in the slice.
 // After the last value is yielded, the sequence will start from the beginning.
 func Loop[E any](items []E) iter.Seq[E] {
+	if len(items) == 0 {
+		return None[E]
+	}
+
 	return func(yield func(E) bool) {
 		for i := 0; ; i = (i + 1) % len(items) {
 			if !yield(items[i%len(items)]) {
