@@ -33,7 +33,7 @@ func Loop[E any](items []E) iter.Seq[E] {
 
 	return func(yield func(E) bool) {
 		for i := 0; ; i = (i + 1) % len(items) {
-			if !yield(items[i%len(items)]) {
+			if !yield(items[i]) {
 				return
 			}
 		}
