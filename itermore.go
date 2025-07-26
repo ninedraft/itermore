@@ -171,30 +171,41 @@ type Number interface {
 //	start <= to: for i := start; i < to; i += step
 //	start > to:  for i := start; i > to; i += step
 func For[N Number](start, to, step N) iter.Seq[N] {
-	if start <= to {
-		return func(yield func(N) bool) {
-			forIncr(start, to, step, yield)
-		}
-	}
-
 	return func(yield func(N) bool) {
-		forDecr(start, to, step, yield)
+		forImpl(start, to, step, yield)
 	}
 }
 
-func forIncr[N Number](start, to, step N, yield func(N) bool) {
-	for i := start; i < to; i += step {
-		if !yield(i) {
-			return
-		}
+func forImpl[N Number](start, to, step N, yield func(N) bool) {
+	if step == 0 {
+		panic("step cannot be zero")
 	}
-}
 
-func forDecr[N Number](start, to, step N, yield func(N) bool) {
-	for i := start; i > to; i += step {
-		if !yield(i) {
+	if step > 0 && start > to {
+		return
+	}
+	if step < 0 && start < to {
+		return
+	}
+
+	for v := start; ; {
+		if !yield(v) {
 			return
 		}
+		if v == to {
+			return
+		}
+
+		next := v + step
+
+		// Overflow detection: for a positive step, overflow wraps around ↓; for
+		// a negative step, it wraps around ↑.  The `<`/`>` tests catch both
+		// signed and unsigned kinds.
+		if (step > 0 && next < v) || (step < 0 && next > v) {
+			return
+		}
+
+		v = next
 	}
 }
 
