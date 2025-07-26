@@ -7,10 +7,10 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-// None creates an emptye sequence.
+// None creates an empty sequence.
 func None[E any](yield func(E) bool) {}
 
-// None2 creates an emptye sequence of pairs.
+// None2 creates an empty sequence of pairs.
 func None2[A, B any](yield func(A, B) bool) {}
 
 // One creates a sequence that yields a single value.
@@ -260,6 +260,7 @@ func Min[E cmp.Ordered](seq iter.Seq[E]) (E, bool) {
 
 	return x, ok
 }
+
 // PairsPadded creates a sequence that yields pairs of values from the given sequence.
 // If number of values in the sequence is odd, Pairs will pad the last pair with the given value.
 func PairsPadded[E any](seq iter.Seq[E], pad E) iter.Seq2[E, E] {
