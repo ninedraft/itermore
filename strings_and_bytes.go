@@ -54,3 +54,32 @@ func CollectJoinBytes[P ~[]byte](wr io.Writer, seq iter.Seq[P], sep []byte) (int
 
 	return written, nil
 }
+
+const defaultBufferSize = 32 * 1024
+
+func CollectJoinReaders[R io.Reader](wr io.Writer, seq iter.Seq[R], sep []byte) (int64, error) {
+	head := true
+	written := int64(0)
+
+	buf := make([]byte, defaultBufferSize)
+
+	for re := range seq {
+		if !head {
+			n, err := wr.Write(sep)
+			written += int64(n)
+			if err != nil {
+				return written, err
+			}
+		}
+
+		head = false
+
+		n, err := io.CopyBuffer(wr, re, buf)
+		written += n
+		if err != nil {
+			return written, err
+		}
+	}
+
+	return written, nil
+}
