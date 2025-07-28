@@ -3,6 +3,7 @@ package itermore
 import (
 	"io"
 	"iter"
+	"sync"
 )
 
 // CollectJoin writes values from provided sequence to the given writer.
@@ -61,7 +62,27 @@ func CollectJoinReaders[R io.Reader](wr io.Writer, seq iter.Seq[R], sep []byte) 
 	head := true
 	written := int64(0)
 
-	buf := make([]byte, defaultBufferSize)
+	buf := sync.OnceValue(func() []byte {
+		return make([]byte, defaultBufferSize)
+	})
+
+	readFrom := func(re io.Reader) error {
+		n, err := io.CopyBuffer(wr, re, buf())
+		written += n
+
+		return err
+	}
+
+	// I expect that in 80% of cases the writer is either *bytes.Buffer or *bufio.Writer,
+	// so we can use io.ReaderFrom without allocating a buffer.
+	if reFrom, ok := wr.(io.ReaderFrom); ok {
+		readFrom = func(re io.Reader) error {
+			n, err := reFrom.ReadFrom(re)
+			written += n
+
+			return err
+		}
+	}
 
 	for re := range seq {
 		if !head {
@@ -74,8 +95,7 @@ func CollectJoinReaders[R io.Reader](wr io.Writer, seq iter.Seq[R], sep []byte) 
 
 		head = false
 
-		n, err := io.CopyBuffer(wr, re, buf)
-		written += n
+		err := readFrom(re)
 		if err != nil {
 			return written, err
 		}
