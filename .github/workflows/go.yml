@@ -32,7 +32,7 @@ jobs:
         run: go mod download
 
       - name: Test
-        run: go test -race ./...
+        run: go test -race -timeout 30s ./...
 
   lint:
     name: Lint
