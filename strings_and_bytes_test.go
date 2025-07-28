@@ -86,6 +86,18 @@ func TestCollectJoin(t *testing.T) {
 	})
 }
 
+func ExampleCollectJoinBytes() {
+	iter := itermore.Items([]byte("a"), []byte("b"), []byte("c"))
+
+	buf := &strings.Builder{}
+
+	_, _ = itermore.CollectJoinBytes(buf, iter, []byte(", "))
+
+	fmt.Println(buf.String())
+
+	// Output: a, b, c
+}
+
 func TestCollectJoinBytes(t *testing.T) {
 	t.Parallel()
 
@@ -148,6 +160,19 @@ func TestCollectJoinBytes(t *testing.T) {
 			t.Errorf("got %q, want empty string", buf.String())
 		}
 	})
+}
+
+func ExampleCollectJoinReaders() {
+	iter := itermore.Items(strings.NewReader("a"), strings.NewReader("b"), strings.NewReader("c"))
+
+	buf := &strings.Builder{}
+	sep := []byte(", ")
+
+	_, _ = itermore.CollectJoinReaders(buf, iter, sep)
+
+	fmt.Println(buf.String())
+
+	// Output: a, b, c
 }
 
 func TestCollectJoinReaders(t *testing.T) {
