@@ -188,11 +188,22 @@ func forImpl[N Number](start, to, step N, yield func(N) bool) {
 		return
 	}
 
+	stop := func(v N) bool {
+		return v >= to
+	}
+
+	if step < 0 {
+		stop = func(v N) bool {
+			return v <= to
+		}
+	}
+
 	for v := start; ; {
-		if !yield(v) {
+		if stop(v) {
 			return
 		}
-		if v == to {
+
+		if !yield(v) {
 			return
 		}
 

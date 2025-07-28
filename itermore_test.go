@@ -540,45 +540,77 @@ func TestTakeN(t *testing.T) {
 func TestFor(t *testing.T) {
 	t.Parallel()
 
-	{
-		seq := itermore.For(0, 10, 1)
-		assertBreak(t, seq)
+	tc := func(name string, start, to, step int) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			t.Logf("start: %d, to: %d, step: %d", start, to, step)
+
+			got := slices.Collect(itermore.For(start, to, step))
+
+			want := normalFor(start, to, step)
+
+			if !slices.Equal(got, want) {
+				t.Errorf("got:  %v", got)
+				t.Errorf("want: %v", want)
+			}
+		})
 	}
 
-	{
-		seq := itermore.For(10, 0, -1)
-		assertBreak(t, seq)
-	}
+	tc("ascending", 0, 5, 2)
+	tc("descending", 5, 0, -2)
+	tc("single element", 3, 3, 1)
+	tc("start>to positive step (no-op)", 5, 0, 1)
+	tc("start<to negative step (no-op)", 0, 5, -1)
 
-	t.Run("iter", func(t *testing.T) {
+	t.Run("overflow positive step (uint8)", func(t *testing.T) {
 		t.Parallel()
 
-		seq := itermore.For(0, 10, 1)
+		const start, to, step uint8 = 254, 255, 2
+		t.Logf("start: %d, to: %d, step: %d", start, to, step)
 
-		got := itermore.Collect[[]int](nil, seq)
+		got := slices.Collect(itermore.For(start, to, step))
 
-		want := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-
+		want := []uint8{254}
 		if !slices.Equal(got, want) {
 			t.Errorf("got:  %v", got)
 			t.Errorf("want: %v", want)
 		}
 	})
 
-	t.Run("iter-reverse", func(t *testing.T) {
+	t.Run("overflow negative step (int8)", func(t *testing.T) {
 		t.Parallel()
 
-		seq := itermore.For(10, 0, -1)
+		const start, to, step int8 = -127, -128, -2
+		t.Logf("start: %d, to: %d, step: %d", start, to, step)
+		got := slices.Collect(itermore.For(start, to, step))
 
-		got := itermore.Collect[[]int](nil, seq)
-
-		want := []int{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
-
+		want := []int8{-127}
 		if !slices.Equal(got, want) {
 			t.Errorf("got:  %v", got)
 			t.Errorf("want: %v", want)
 		}
 	})
+}
+
+func normalFor[N itermore.Number](start, to, step N) []N {
+	if step == 0 {
+		panic("step cannot be zero")
+	}
+
+	var xx []N
+
+	if step > 0 {
+		for i := start; i < to; i += step {
+			xx = append(xx, i)
+		}
+	} else {
+		for i := start; i > to; i += step {
+			xx = append(xx, i)
+		}
+	}
+
+	return xx
 }
 
 func TestThen(t *testing.T) {
