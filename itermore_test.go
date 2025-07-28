@@ -157,7 +157,7 @@ func TestNone(t *testing.T) {
 	t.Run("iter", func(t *testing.T) {
 		t.Parallel()
 
-		for _ = range itermore.None[int] {
+		for range itermore.None[int] {
 			t.Fatal("no iterations are expected")
 		}
 	})
@@ -171,7 +171,7 @@ func TestNone2(t *testing.T) {
 	t.Run("iter", func(t *testing.T) {
 		t.Parallel()
 
-		for _ = range itermore.None[int] {
+		for range itermore.None[int] {
 			t.Fatal("no iterations are expected")
 		}
 	})
@@ -440,7 +440,7 @@ func TestChain(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		t.Parallel()
 
-		for _ = range itermore.Chain[int]() {
+		for range itermore.Chain[int]() {
 			t.Fatalf("must not iterate over empty seq")
 		}
 	})
@@ -511,7 +511,7 @@ func TestTakeN(t *testing.T) {
 		t.Parallel()
 
 		a := itermore.Slice([]int{})
-		for _ = range itermore.TakeN(2, a) {
+		for range itermore.TakeN(2, a) {
 			t.Fatalf("must not iterate over empty seq")
 		}
 	})
@@ -520,7 +520,7 @@ func TestTakeN(t *testing.T) {
 		t.Parallel()
 
 		a := itermore.Slice([]int{1, 2, 3})
-		for _ = range itermore.TakeN(0, a) {
+		for range itermore.TakeN(0, a) {
 			t.Fatalf("must not iterate over empty seq")
 		}
 	})
@@ -531,7 +531,7 @@ func TestTakeN(t *testing.T) {
 		want := []int{1, 2, 3}
 		a := itermore.Slice(want)
 
-		for _ = range itermore.TakeN(-1, a) {
+		for range itermore.TakeN(-1, a) {
 			t.Fatalf("must not iterate over empty seq")
 		}
 	})
@@ -626,7 +626,7 @@ func TestThen(t *testing.T) {
 
 		seq := itermore.Then(itermore.One(1), then)
 
-		for _ = range seq {
+		for range seq {
 			// pass
 		}
 
@@ -645,7 +645,7 @@ func TestThen(t *testing.T) {
 
 		seq := itermore.Then(itermore.None[int], then)
 
-		for _ = range seq {
+		for range seq {
 			t.Fatalf("must not iterate over empty seq")
 		}
 
@@ -683,7 +683,7 @@ func TestCompact(t *testing.T) {
 
 		seq := itermore.Compact(itermore.None[int])
 
-		for _ = range seq {
+		for range seq {
 			t.Fatalf("must not iterate over empty seq")
 		}
 	})
@@ -803,7 +803,7 @@ func TestPairsPadded(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		items := itermore.None[int]
 
-		for _ = range itermore.PairsPadded(items, 0) {
+		for range itermore.PairsPadded(items, 0) {
 			t.Fatalf("must not iterate over empty seq")
 		}
 	})
@@ -851,7 +851,7 @@ func TestPairs(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		items := itermore.None[int]
 
-		for _ = range itermore.Pairs(items) {
+		for range itermore.Pairs(items) {
 			t.Fatalf("must not iterate over empty seq")
 		}
 	})
@@ -863,7 +863,7 @@ func assertBreak[E any](t *testing.T, seq iter.Seq[E]) {
 	t.Run("break", func(t *testing.T) {
 		t.Parallel()
 
-		for _ = range seq {
+		for range seq {
 			break
 		}
 	})
@@ -875,7 +875,7 @@ func assertBreak2[A, B any](t *testing.T, seq iter.Seq2[A, B]) {
 	t.Run("break", func(t *testing.T) {
 		t.Parallel()
 
-		for _, _ = range seq {
+		for range seq {
 			break
 		}
 	})

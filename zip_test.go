@@ -33,7 +33,7 @@ func TestZip(t *testing.T) {
 	t.Run("none", func(t *testing.T) {
 		t.Parallel()
 		a, b := itermore.None[int], itermore.None[string]
-		for _, _ = range itermore.Zip(a, b) {
+		for range itermore.Zip(a, b) {
 			t.Fatal("must not iterate over empty seq")
 		}
 	})
@@ -41,7 +41,7 @@ func TestZip(t *testing.T) {
 	t.Run("none-one", func(t *testing.T) {
 		t.Parallel()
 		a, b := itermore.One(1), itermore.None[string]
-		for _, _ = range itermore.Zip(a, b) {
+		for range itermore.Zip(a, b) {
 			t.Fatal("must not iterate over empty seq")
 		}
 	})
@@ -80,7 +80,7 @@ func TestZipLongest(t *testing.T) {
 	t.Run("none", func(t *testing.T) {
 		t.Parallel()
 		a, b := itermore.None[int], itermore.None[string]
-		for _, _ = range itermore.ZipLongest(a, b) {
+		for range itermore.ZipLongest(a, b) {
 			t.Fatal("must not iterate over empty seq")
 		}
 	})

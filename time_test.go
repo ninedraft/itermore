@@ -27,7 +27,7 @@ func TestTick(t *testing.T) {
 	defer assertGoroutineLeak(t)()
 
 	i := 0
-	for _ = range itermore.Tick(time.Millisecond) {
+	for range itermore.Tick(time.Millisecond) {
 		i++
 		if i > 10 {
 			break
@@ -42,7 +42,7 @@ func TestTickCtx(t *testing.T) {
 	defer cancel()
 
 	i := 0
-	for _ = range itermore.TickCtx(ctx, time.Millisecond) {
+	for range itermore.TickCtx(ctx, time.Millisecond) {
 		i++
 		if i > 10 {
 			cancel()
