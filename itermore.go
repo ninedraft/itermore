@@ -3,6 +3,7 @@ package itermore
 import (
 	"cmp"
 	"iter"
+	"sync/atomic"
 
 	"golang.org/x/exp/constraints"
 )
@@ -29,7 +30,13 @@ func One[E any](value E) iter.Seq[E] {
 
 // One2 creates a sequence that yields a single pair.
 func One2[A, B any](a A, b B) iter.Seq2[A, B] {
+	isDrained := &atomic.Bool{}
 	return func(yield func(A, B) bool) {
+		if isDrained.Load() {
+			return
+		}
+		isDrained.Store(true)
+
 		yield(a, b)
 	}
 }
@@ -90,8 +97,28 @@ func Next[E any](next func() (E, bool)) iter.Seq[E] {
 	}
 }
 
+// Next2 creates sequence that yields pairs of values from the given function.
+// It is similar to Next, but yields two values at once.
+func Next2[A, B any](next func() (A, B, bool)) iter.Seq2[A, B] {
+	isDrained := &atomic.Bool{}
+
+	return func(yield func(A, B) bool) {
+		for !isDrained.Load() {
+			a, b, ok := next()
+			if !ok {
+				isDrained.Store(true)
+				return
+			}
+
+			if !yield(a, b) {
+				return
+			}
+		}
+	}
+}
 
 // YieldFrom pulls all values from the given sequence and yields them.
+// Returns false if the yield function returns false.
 func YieldFrom[E any](yield func(E) bool, seq iter.Seq[E]) bool {
 	for value := range seq {
 		if !yield(value) {
@@ -103,6 +130,7 @@ func YieldFrom[E any](yield func(E) bool, seq iter.Seq[E]) bool {
 }
 
 // YieldFrom2 pulls all pairs from the given sequence and yields them.
+// Returns false if the yield function returns false.
 func YieldFrom2[A, B any](yield func(A, B) bool, seq iter.Seq2[A, B]) bool {
 	for a, b := range seq {
 		if !yield(a, b) {
@@ -130,6 +158,20 @@ func Chain[E any](seqs ...iter.Seq[E]) iter.Seq[E] {
 		}
 	}
 }
+
+// Chain2 creates a sequence that yields pairs from all provided sequences.
+// Pairs are yielded in the order they appear in the arguments.
+func Chain2[A, B any](seqs ...iter.Seq2[A, B]) iter.Seq2[A, B] {
+	return func(yield func(A, B) bool) {
+		for i, seq := range seqs {
+			if seq == nil {
+				// skip nil and drained
+				continue
+			}
+			if !YieldFrom2(yield, seq) {
+				return
+			}
+			seqs[i] = nil // mark as drained
 		}
 	}
 }
@@ -349,6 +391,18 @@ func Pairs[E any](seq iter.Seq[E]) iter.Seq2[E, E] {
 			}
 
 			if !yield(a, b) {
+				return
+			}
+		}
+	}
+}
+
+// KeysOf creates a sequence that yields keys from the given sequence of pairs.
+// It is useful to extract keys from a sequence of pairs.
+func KeysOf[K, V any](seq iter.Seq2[K, V]) iter.Seq[K] {
+	return func(yield func(K) bool) {
+		for k := range seq {
+			if !yield(k) {
 				return
 			}
 		}
