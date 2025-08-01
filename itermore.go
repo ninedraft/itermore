@@ -15,7 +15,14 @@ func None2[A, B any](yield func(A, B) bool) {}
 
 // One creates a sequence that yields a single value.
 func One[E any](value E) iter.Seq[E] {
+	isDrained := &atomic.Bool{}
+
 	return func(yield func(E) bool) {
+		if isDrained.Load() {
+			return
+		}
+		isDrained.Store(true)
+
 		yield(value)
 	}
 }
@@ -66,18 +73,23 @@ func Enumerate[E any](seq iter.Seq[E]) iter.Seq2[int, E] {
 
 // Next creates sequence that yields values from the given function.
 func Next[E any](next func() (E, bool)) iter.Seq[E] {
+	isDrained := &atomic.Bool{}
+
 	return func(yield func(E) bool) {
-		for {
+		for !isDrained.Load() {
 			value, ok := next()
 			if !ok {
+				isDrained.Store(true)
 				return
 			}
+
 			if !yield(value) {
 				return
 			}
 		}
 	}
 }
+
 
 // YieldFrom pulls all values from the given sequence and yields them.
 func YieldFrom[E any](yield func(E) bool, seq iter.Seq[E]) bool {
@@ -105,10 +117,19 @@ func YieldFrom2[A, B any](yield func(A, B) bool, seq iter.Seq2[A, B]) bool {
 // Values are yielded in the order they appear in the arguments.
 func Chain[E any](seqs ...iter.Seq[E]) iter.Seq[E] {
 	return func(yield func(E) bool) {
-		for _, seq := range seqs {
+		for i, seq := range seqs {
+			if seq == nil {
+				// skip nil and drained
+				continue
+			}
+
 			if !YieldFrom(yield, seq) {
 				return
 			}
+			seqs[i] = nil // mark as drained
+		}
+	}
+}
 		}
 	}
 }
@@ -331,5 +352,23 @@ func Pairs[E any](seq iter.Seq[E]) iter.Seq2[E, E] {
 				return
 			}
 		}
+	}
+}
+
+// ValuesOf creates a sequence that yields values from the given sequence of pairs.
+func ValuesOf[K, V any](seq iter.Seq2[K, V]) iter.Seq[V] {
+	return func(yield func(V) bool) {
+		for _, v := range seq {
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
+// Drain input sequence into oblivion.
+// It is useful to clear sequences that are not needed anymore.
+func Drain[E any](seq iter.Seq[E]) {
+	for range seq {
 	}
 }
