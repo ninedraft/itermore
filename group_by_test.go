@@ -143,7 +143,7 @@ func BenchmarkGropByFn(b *testing.B) {
 		"apple", "apricot", "banana", "blueberry",
 	}
 
-	const emitBytes = 1024
+	const emitBytes = 10 * 1024 * 1024
 	emitted := 0
 	source := func(yield func(string) bool) {
 		for {
@@ -164,7 +164,6 @@ func BenchmarkGropByFn(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	b.ReportAllocs()
 
 	for b.Loop() {
 		emitted = 0

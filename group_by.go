@@ -2,6 +2,7 @@ package itermore
 
 import (
 	"iter"
+	"sync/atomic"
 )
 
 // GroupByFn creates a sequence of groups from the given sequence.
@@ -16,48 +17,58 @@ import (
 // Each output sequence shares the same memory with the input sequence, so it state is invalidated
 // on next iteration. Collect group to slice for later usage or use it immediately.
 func GroupByFn[E any, K comparable](seq iter.Seq[E], toKey func(E) K) iter.Seq2[K, iter.Seq[E]] {
+	inputDrained := &atomic.Bool{}
+
 	return func(yield func(K, iter.Seq[E]) bool) {
+		if inputDrained.Load() {
+			return
+		}
+
 		next, nextStop := iter.Pull(seq)
 		defer nextStop()
 
 		start, ok := next()
 		if !ok {
+			inputDrained.Store(true)
 			return
 		}
 
 		key := toKey(start)
 
-		for stop := false; !stop; {
-			groupTail := Next(func() (E, bool) {
-				var empty E
+		stopGroup := false
+		group := func(yield func(E) bool) {
+			if stopGroup {
+				return
+			}
 
+			if !yield(start) {
+				return
+			}
+
+			for {
 				value, ok := next()
-
 				if !ok {
-					stop = true
-					return empty, false
+					inputDrained.Store(true)
+					return
 				}
 
-				nextKey := toKey(value)
-				if nextKey != key {
-
+				key = toKey(value)
+				if key != toKey(start) {
 					start = value
-					key = nextKey
-					return empty, false
+					key = toKey(value)
+					stopGroup = true
+					return
 				}
 
-				return value, true
-			})
+				if !yield(value) {
+					return
+				}
+			}
+		}
 
-			group := Chain(
-				One(start),
-				groupTail,
-			)
-
+		for !inputDrained.Load() {
+			stopGroup = false
 			ok = yield(key, group)
-
-			Drain(group)
-
 			if !ok {
 				return
 			}
