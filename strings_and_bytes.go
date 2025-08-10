@@ -90,7 +90,7 @@ func CollectJoinReaders[R io.Reader](wr io.Writer, seq iter.Seq[R], sep []byte) 
 	}
 
 	for re := range seq {
-		if !head {
+		if !head && len(sep) > 0 {
 			n, err := wr.Write(sep)
 			written += int64(n)
 			if err != nil {
