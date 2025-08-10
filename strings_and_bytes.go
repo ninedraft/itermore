@@ -10,7 +10,7 @@ func CollectJoin[S ~string](wr io.StringWriter, seq iter.Seq[S], sep string) (in
 	head := true
 	written := int64(0)
 	for value := range seq {
-		if !head {
+		if !head && len(sep) > 0 {
 			n, err := wr.WriteString(sep)
 			written += int64(n)
 			if err != nil {
@@ -35,7 +35,7 @@ func CollectJoinBytes[P ~[]byte](wr io.Writer, seq iter.Seq[P], sep []byte) (int
 	head := true
 	written := int64(0)
 	for value := range seq {
-		if !head {
+		if !head && len(sep) > 0 {
 			n, err := wr.Write(sep)
 			written += int64(n)
 			if err != nil {
