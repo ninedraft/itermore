@@ -1,6 +1,7 @@
 package itermore
 
 import (
+	"errors"
 	"io"
 	"iter"
 )
@@ -107,4 +108,60 @@ func CollectJoinReaders[R io.Reader](wr io.Writer, seq iter.Seq[R], sep []byte) 
 	}
 
 	return written, nil
+}
+
+func MultiReader(rere iter.Seq[io.Reader]) io.ReadCloser {
+	if rere == nil {
+		return nil
+	}
+	io.MultiReader()
+
+	next, stop := iter.Pull(rere)
+
+	return &multiReader{
+		next: next,
+		stop: stop,
+	}
+}
+
+type multiReader struct {
+	re   io.Reader
+	next func() (io.Reader, bool)
+	stop func()
+}
+
+func (mr *multiReader) Close() error {
+	mr.stop()
+	return nil
+}
+
+func (mr *multiReader) Read(p []byte) (n int, err error) {
+next:
+	if mr.re == nil {
+		re, ok := mr.next()
+		if !ok {
+			// stop the iterator earlier to help GC
+			mr.stop()
+			return n, io.EOF
+		}
+
+		mr.re = re
+	}
+
+	n, err = mr.re.Read(p)
+	isEOF := errors.Is(err, io.EOF)
+
+	if isEOF {
+		mr.re = nil
+	}
+
+	if isEOF && n == 0 {
+		goto next
+	}
+
+	if isEOF && n != 0 {
+		return n, nil
+	}
+
+	return n, err
 }
