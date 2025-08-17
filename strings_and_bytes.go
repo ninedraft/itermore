@@ -110,12 +110,14 @@ func CollectJoinReaders[R io.Reader](wr io.Writer, seq iter.Seq[R], sep []byte) 
 	return written, nil
 }
 
+// MultiReader returns an io.ReadCloser that's the logical concatenation of the
+// readers from the provided sequence. They're read sequentially. Once all
+// readers have returned EOF, Read will return EOF. If any of the readers
+// return a non-nil, non-EOF error, Read will return that error.
+// It is an analog of io.MultiReader, but for iter.Seq[io.Reader].
+// The caller should call Close on the returned reader to release resources
+// associated with the iterator.
 func MultiReader(rere iter.Seq[io.Reader]) io.ReadCloser {
-	if rere == nil {
-		return nil
-	}
-	io.MultiReader()
-
 	next, stop := iter.Pull(rere)
 
 	return &multiReader{
